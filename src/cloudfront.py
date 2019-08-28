@@ -39,7 +39,7 @@ def _get_distribution(domain):
     return found[0] if found else None
 
 
-def _create_distribution(domain, s3_website, cert, region, root_object):
+def _create_distribution(domain, s3_website, cert, root_object):
     config = {
         "CallerReference": f"dist-{domain}",
         "Aliases": {

@@ -60,6 +60,6 @@ def _get_cert(domain):
 
 def _request_certificate(domain):
     logging.debug(f'Requesting certificate for {domain}')
-    arn = exec(f'aws acm request-certificate --domain-name {domain} --validation-method DNS  --subject-alternative-names www.{domain}')
+    arn = exec(f'aws acm request-certificate --domain-name {domain} --validation-method DNS  --subject-alternative-names www.{domain}').strip()
     logging.debug(f"Certificate requested: {arn}")
     return arn

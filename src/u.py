@@ -2,7 +2,7 @@ import subprocess
 import logging
 
 def exec(_cmd):
-    cmd = f"{_cmd} {'' if '--region' in _cmd else '--region us-east-1'} {'' if '--output' in _cmd else '--output text'}"
+    cmd = f"{_cmd.strip()}{'' if '--region' in _cmd else ' --region us-east-1'}{'' if '--output' in _cmd else ' --output text'}"
     logging.debug(f"exec: >{cmd}<")
     res = subprocess.run([cmd],
                          shell=True,

@@ -41,8 +41,8 @@ if __name__ == "__main__":
     print("=======Step 3/3: Configure HTTPS=======")
     (cert, cert_recordsset) = cert.cert_and_recordsets(domain)
     route53.add_recordsset(domain, cert_recordsset)
-    route53.add_recordsset(domain, cloudfront.recordsset(domain, cert, "index.html"))
-    route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", cert, ""))
+    route53.add_recordsset(domain, cloudfront.recordsset(domain, s3_website, cert, "index.html"))
+    route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", s3_website, cert, ""))
     print(f"=======Step 3/3 Completed: Content available by https://{domain} =======")
 
 
