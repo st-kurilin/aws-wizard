@@ -20,7 +20,7 @@ def obtain_web_bucket(name):
     # hardcoded for us-east-1: https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
     dns_name = f"{name}.s3-website-us-east-1.amazonaws.com"
     hosted_zone = "Z3AQBSTGFYJSTF"
-    return (dns_name, _wrap_to_recordsset(dns_name, hosted_zone))
+    return (dns_name, _wrap_to_recordsset(name, dns_name, hosted_zone))
 
 
 def sync(domain, dir):
@@ -66,7 +66,7 @@ def _redirect_www(name):
     exec (f"aws s3api put-bucket-website --bucket www.{name} --website-configuration '{json.dumps(conf)}'")
 
 
-def _wrap_to_recordsset(dns_name, hosted_zone):
+def _wrap_to_recordsset(domain, dns_name, hosted_zone):
     return [{
         "AliasTarget": {
             "HostedZoneId": hosted_zone,
@@ -74,7 +74,7 @@ def _wrap_to_recordsset(dns_name, hosted_zone):
             "DNSName": f"{dns_name}."
         },
         "Type": "A",
-        "Name": "mabadam.com."
+        "Name": f"{domain}."
     }, {
         "AliasTarget": {
             "HostedZoneId": hosted_zone,
@@ -82,6 +82,6 @@ def _wrap_to_recordsset(dns_name, hosted_zone):
             "DNSName": f"{dns_name}."
         },
         "Type": "A",
-        "Name": "www.mabadam.com."
+        "Name": f"www.{domain}."
     },
     ]
