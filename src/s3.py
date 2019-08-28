@@ -1,6 +1,4 @@
-from u import
-
-exec
+from u import exec
 import json
 import logging
 

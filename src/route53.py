@@ -2,6 +2,8 @@ import logging
 
 from u import exec
 
+def get_ns_servers(domain):
+    return _get_recorsets(domain, "NS")
 
 def add_recordsset(domain, records):
     if len(records) > 0:
@@ -59,3 +61,22 @@ def _get_hostedzone(domain):
     else:
         logging.debug(f'get_hostedzone did not find any hostzones.')
         return None
+
+def _get_recorsets(domain, record_type):
+    hostedzone = _obtain_hostedzone(domain)
+    stdout = exec(f"aws route53 list-resource-record-sets --hosted-zone-id {hostedzone} --output text")
+    res = []
+    in_flag = False
+    for l in stdout.splitlines():
+        splitted = l.split()
+        if splitted[0] == "RESOURCERECORDSETS" and len(splitted) == 4 and \
+                        splitted[1] == f"{domain}." and splitted[3] == record_type:
+            in_flag = True
+        else:
+            if in_flag:
+                if splitted[0] == "RESOURCERECORDS":
+                    res.append(splitted[1])
+                else:
+                    in_flag = False
+
+    return res
