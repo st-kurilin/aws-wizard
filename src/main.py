@@ -1,4 +1,5 @@
 import sys
+import logging
 
 import cert
 import cloudfront
@@ -14,6 +15,7 @@ if __name__ == "__main__":
     print("=======Step 1/3: Publish Content to S3 Buckets=======")
     (s3_website, s3_recordsset) = s3.obtain_web_bucket(domain)
     s3.sync(domain, path)
+    route53.add_recordsset(domain, s3_recordsset)
     print(f"=======Step 1/3 Completed: Content available by http://{s3_website} =======")
     print("=======Step 2/3: Configure Domain=======")
     #TODO implement
