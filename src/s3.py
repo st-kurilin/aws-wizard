@@ -14,6 +14,7 @@ def obtain_web_bucket(name):
     _make_public(www)
 
     _redirect_www(name)
+    return (f"{name}.s3-website-us-east-1.amazonaws.com", [])   #TODO: do not hardcode region
 
 def sync(domain, dir):
     exec (f"aws s3 sync {dir} s3://{domain}/ --delete")

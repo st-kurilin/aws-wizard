@@ -3,11 +3,11 @@ import json
 from u import exec
 
 
-def recordsset(domain, cert, root_object):
+def recordsset(domain, s3_website, cert, root_object):
     dist = _get_distribution(domain)
     if dist is None:
         print(f"Distribution for {domain} not found. Will create new one")
-        _create_distribution(domain, cert, "us-east-1", root_object) #TODO: use appropriate region
+        _create_distribution(domain, s3_website, cert, root_object)
         return _wrap_in_recordsset(domain, _get_distribution(domain)['dist_domain'])
     else:
         print(f"Distribution for {domain} already exist: {dist['dist_domain']}")
@@ -39,7 +39,7 @@ def _get_distribution(domain):
     return found[0] if found else None
 
 
-def _create_distribution(domain, cert, region, root_object):
+def _create_distribution(domain, s3_website, cert, region, root_object):
     config = {
         "CallerReference": f"dist-{domain}",
         "Aliases": {
@@ -53,8 +53,8 @@ def _create_distribution(domain, cert, region, root_object):
             "Quantity": 1,
             "Items": [
                 {
-                    "Id": f"S3-Website-{domain}.s3-website-{region}.amazonaws.com",
-                    "DomainName": f"{domain}.s3-website-{region}.amazonaws.com",
+                    "Id": f"S3-Website-{s3_website}",
+                    "DomainName": s3_website,
                     "CustomOriginConfig": {
                         "OriginSslProtocols": {
                             "Items": [
@@ -75,7 +75,7 @@ def _create_distribution(domain, cert, region, root_object):
         },
         "HttpVersion": "http2",
         "DefaultCacheBehavior": {
-            "TargetOriginId": f"S3-Website-{domain}.s3-website-{region}.amazonaws.com",
+            "TargetOriginId": f"S3-Website-{s3_website}",
             "ViewerProtocolPolicy": "redirect-to-https",
             "MinTTL": 0,
             "TrustedSigners": {
