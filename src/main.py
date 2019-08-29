@@ -10,7 +10,7 @@ import s3
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     domain=sys.argv[1]
     path=sys.argv[2]
 
@@ -41,6 +41,14 @@ if __name__ == "__main__":
     print("=======Step 3/3: Configure HTTPS=======")
     (cert, cert_recordsset) = cert.cert_and_recordsets(domain)
     route53.add_recordsset(domain, cert_recordsset)
+    if len(cert_recordsset) != 0:
+        print("Issuing ssl certificate can take some time. No manual actions required.")
+        while len(cert_recordsset) != 0:
+            time.sleep(30)
+            (cert, cert_recordsset) = cert.cert_and_recordsets(domain)
+            print("Waiting for certificate [no actions required].")
+        print("Certificate issues and validated.")
+
     route53.add_recordsset(domain, cloudfront.recordsset(domain, s3_website, cert, "index.html"))
     route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", s3_website, cert, ""))
     print(f"=======Step 3/3 Completed: Content available by https://{domain} =======")
