@@ -88,7 +88,7 @@ const StaticWebsiteLink = props => <div className="row center">
     <br/>
     <Link href='/static-website'>
         <a href="/static-website"
-           className="btn-large waves-effect waves-light teal lighten-1">
+           className={props.className || "btn-large waves-effect waves-light teal lighten-1"}>
             Build Static Website
         </a>
     </Link>

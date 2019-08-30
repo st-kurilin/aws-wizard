@@ -1,3 +1,5 @@
+import {AwsAccountLink} from "../pages/aws-account";
+
 export default props => <footer className="page-footer teal">
     <div className="container">
         <div className="row">
@@ -9,12 +11,12 @@ export default props => <footer className="page-footer teal">
                     AWS-Wizard is our solution that allows to get infrastructure in place fast and with minimal manual work.
                 </p>
             </div>
-            {/*<div className="col l3 s12">*/}
-                {/*<h5 className="white-text">More</h5>*/}
-                {/*<ul>*/}
-                    {/*<li><a className="white-text" href="#!">Link 1</a></li>*/}
-                {/*</ul>*/}
-            {/*</div>*/}
+            <div className="col l3 s12">
+                <h5 className="white-text">Quick Links</h5>
+                <ul>
+                    <li><AwsAccountLink className="white-text"/></li>
+                </ul>
+            </div>
             <div className="col l3 s12">
                 <h5 className="white-text">Connect</h5>
                 <ul>
