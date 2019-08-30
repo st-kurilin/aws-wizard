@@ -1,9 +1,16 @@
-import Link from 'next/link';
+import Link from "next/link";
+import Nav from "../components/Nav";
+import Hero from "../components/Hero";
+import Content from "../components/Content";
+import Footer from "../components/Footer";
 
 const Index = () => (
     <div>
-        <p>AWS wizard landing</p>
-        <p>It's so cool.</p>
+        <Nav/>
+        <Hero/>
+        <Content/>
+        <Footer/>
+
         <Link href='/static-website'><p>GO STATIC</p></Link>
     </div>
 );
