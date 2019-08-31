@@ -62,7 +62,7 @@ export default props => (
 export const AwsAccountLink = props => (
     <Link href='/aws-account'>
         <a href="/aws-account"
-           className={props.className || "btn-large waves-effect waves-light teal lighten-1"}>
+           className={props.className}>
             Configure AWS Account
         </a>
     </Link>

@@ -1,29 +1,29 @@
-import Link from "next/link";
 import Nav from "../components/Nav";
 import Hero from "../components/Hero";
 import Feature from "../components/Feature";
 import Section from "../components/Section";
 import Footer from "../components/Footer";
 import ParallaxImg from "../components/ParallaxImg";
+import {StaticWebsiteLink} from "./static-website";
 
 export default () => {
     React.useEffect(() => {
-        $('.sidenav');
+        $('.sidenav').sidenav();
         $('.parallax').parallax();
     });
     return (
         <div>
             <Nav />
             <Hero header="AWS Wizard" subheader="Amazon made simple.">
-                <StaticWebsiteLink />
+                <StaticWebsiteButton />
             </Hero>
             <div>
                 <Section>
-                    <Feature title="Speed Ups" icon="flight_takeoff">
+                    <Feature title="Speed Ups" icon="flash_on">
                         You can get started with AWS easily, and focus on solving important problems instead of dealing with
                         deployment.
                     </Feature>
-                    <Feature title="Best Practices" icon="flash_on">
+                    <Feature title="Best Practices" icon="book">
                         You don't need to know infrastructure patterns to follow them.
                         Simple deploy script will provide abstraction that you need to allow you follow best practices
                         effortlessly.
@@ -64,7 +64,7 @@ export default () => {
                         CloudFront.
                         Configuring all this technologies used to be a hustle. Not anymore.
                         Recommended approach if you don't need any backend.
-                        <StaticWebsiteLink/>
+                        <StaticWebsiteButton/>
                     </Feature>
                     <Feature title="Lambda Backend" icon="build">
                         Continuous scaling with cutting edge backend solution from Amazon.
@@ -72,14 +72,14 @@ export default () => {
                         All major languages are supported including Python, Node.js, Java and Go.
                         However there are some limitations with frameworks usage.
                         Recommended approach for new projects that needs backend.
-                        <ServerlessLink/>
+                        <ServerlessButton/>
                     </Feature>
                     <Feature title="EC2 Backend" icon="developer_board">
                         EC2 is bread and butter for Amazon. The ultimate solution with virtual machines.
                         Now you can run your solution in auto-scalable infrastructure with a single command.
                         No limitation on technology used. All programming languages and frameworks supported.
                         Recommended approach if you are migrating existing solution to cloud.
-                        <ServerLink/>
+                        <ServerButton/>
                     </Feature>
                 </Section>
                 <ParallaxImg
@@ -90,18 +90,13 @@ export default () => {
     );
 }
 
-const StaticWebsiteLink = props => <div className="row center">
+const StaticWebsiteButton = props => <div className="row center">
     <br/>
-    <Link href='/static-website'>
-        <a href="/static-website"
-           className={props.className || "btn-large waves-effect waves-light teal lighten-1"}>
-            Build Static Website
-        </a>
-    </Link>
+    <StaticWebsiteLink className="btn-large waves-effect waves-light teal lighten-1"/>
     <br/>
 </div>;
 
-const ServerlessLink = props => (
+const ServerlessButton = props => (
     <div className="row center">
         <br/>
         <span
@@ -112,4 +107,4 @@ const ServerlessLink = props => (
     </div>
 );
 
-const ServerLink = ServerlessLink;
+const ServerButton = ServerlessButton;

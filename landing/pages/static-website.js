@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Nav from "../components/Nav";
 import Feature from "../components/Feature";
 import Section from "../components/Section";
@@ -69,3 +70,14 @@ export default props => (
         <Footer/>
     </div>
 );
+
+
+export const StaticWebsiteLink = props => (
+    <Link href='/static-website'>
+        <a href="/static-website"
+           className={props.className}>
+            Build Static Website
+        </a>
+    </Link>
+);
+

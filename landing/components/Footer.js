@@ -1,4 +1,5 @@
 import {AwsAccountLink} from "../pages/aws-account";
+import {StaticWebsiteLink} from "../pages/static-website";
 
 export default props => <footer className="page-footer teal">
     <div className="container">
@@ -15,6 +16,7 @@ export default props => <footer className="page-footer teal">
                 <h5 className="white-text">Quick Links</h5>
                 <ul>
                     <li><AwsAccountLink className="white-text"/></li>
+                    <li><StaticWebsiteLink className="white-text"/></li>
                 </ul>
             </div>
             <div className="col l3 s12">
