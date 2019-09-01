@@ -16,6 +16,7 @@ export default props => (
         </div>
         <div>
             <Section>
+                <h5>AWS Account Configuration</h5>
                 Before you start using AWS-Wizard you need to have Amazon account created and CLI installed.
                 Since you are using our deploy script this is where most manual work from you required.
                 However, don't worry we've write that tutorial to get you on quick.

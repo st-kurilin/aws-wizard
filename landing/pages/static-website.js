@@ -4,8 +4,10 @@ import Feature from "../components/Feature";
 import Section from "../components/Section";
 import Footer from "../components/Footer";
 import Ul from "../components/Ul";
+import {AwsAccountLink} from "./aws-account";
 
-
+const googleDomainsLink =  <a href="https://domains.google/" target="_blank">Google Domains,</a>;
+const goDaddyLink =  <a href="https://www.godaddy.com/" target="_blank">GoDaddy.</a>;
 export default props => (
     <div>
         <Nav />
@@ -34,12 +36,51 @@ export default props => (
                     You don't need to have any programming skills to create one.
                 </Feature>
                 <Feature title="Cheapest to Maintain" icon="monetization_on">
-                    Having top-notch infrastructure could cost you $0.02 a day. It's not free, but it has unbeatable value.
+                    Having top-notch infrastructure could cost you $0.02 a day. It's not free, but it has unbeatable
+                    value.
                 </Feature>
             </Section>
             <Section>
+                <h5>End Result</h5>
+                <Ul>{[
+                    <span><b>index.html</b> as default page</span>,
+                    <span><b>HTTPs</b> support with free Amazon certificate</span>,
+                    <div><b>Redirections</b> done right
+                        <ul style={{marginLeft: 16}}>
+                            <li>https://yourdomain.com/ -> https://yourdomain.com</li>
+                            <li>https://www.yourdomain.com -> https://yourdomain.com</li>
+                            <li>http://yourdomain.com -> https://yourdomain.com</li>
+                            <li>http://www.yourdomain.com -> https://yourdomain.com</li>
+                        </ul>
+                    </div>,
+                    <span>
+                        <b>ClouldFront</b> distributions configured to do CDN distributions and cashing
+                    </span>,
+                    <span>
+                        <b>S3</b> buckets configured to store content
+                    </span>,
+                    <span>
+                        <b>Route53</b> configured to connect ClouldFront to S3
+                    </span>
+                ]}
+                </Ul>
+            </Section>
+            <Section>
                 <h5>Prerequisites</h5>
-                <Ul>{["AWS account created and CLI configured.", "Domain purchased."]}</Ul>
+                <Ul>{[
+                    <div>
+                        <span><b>AWS account</b> created and CLI configured.</span>
+                        <p>
+                            We have a tutorial on how to do it: <AwsAccountLink/>.
+                        </p>
+                    </div>,
+                    <div>
+                        <span><b>Domain</b> purchased.</span>
+                        <p>
+                            We recommend to go with {googleDomainsLink} or {goDaddyLink}
+                        </p>
+                    </div>
+                ]}</Ul>
             </Section>
             <Section>
                 <h5>Do it</h5>
@@ -63,7 +104,7 @@ export default props => (
                         <p>Really, it should be done once all changes are propagated within Amazon infrastructure.
                             If something went wrong it's safe to run script again. It's safe to contact us too.</p>
                     </span>
-                    ]}
+                ]}
                 </Ul>
             </Section>
         </div>
