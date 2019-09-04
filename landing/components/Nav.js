@@ -5,7 +5,7 @@ import {AwsAccountLink} from "../pages/aws-account";
 export default () => <nav className="white" role="navigation">
     <div className="nav-wrapper container">
         <Link href='/'>
-            <a id="logo-container" href="/" className="brand-logo">AWS-Wizard</a>
+            <a id="logo-container" href="/" className="brand-logo">AWS Wizard</a>
         </Link>
 
 
