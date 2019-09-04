@@ -20,10 +20,10 @@ export default props => (
         </div>
         <div>
             <Section>
-                <h5>What is Static Website?</h5>
+                <h5>What is a Static Website?</h5>
                 It is a website which contains Web pages with fixed content. Just HTML, CSS, JavaScript and Images.
                 No database or server-side rendering.
-                This is ultimate solution for landing pages. Go one more step and get a blog with static site
+                This is the ultimate solution for landing pages. Go one more step and get a blog with static site
                 generators.
             </Section>
             <Section>
@@ -36,8 +36,8 @@ export default props => (
                     You don't need to have any programming skills to create one.
                 </Feature>
                 <Feature title="Cheapest to Maintain" icon="monetization_on">
-                    Having top-notch infrastructure could cost you $0.02 a day. It's not free, but it has unbeatable
-                    value.
+                    Having a top-notch infrastructure could cost you $0.02 a day.
+                    It's not free, but it has an unbeatable value.
                 </Feature>
             </Section>
             <Section>
@@ -77,7 +77,7 @@ export default props => (
                     <div>
                         <span><b>Domain</b> purchased.</span>
                         <p>
-                            We recommend to go with {googleDomainsLink} or {goDaddyLink}
+                            We recommend going with {googleDomainsLink} or {goDaddyLink}
                         </p>
                     </div>
                 ]}</Ul>
@@ -87,7 +87,7 @@ export default props => (
                 <Ul>{[
                     <span><b>Install script</b> with `pip install awswizard`</span>,
                     <span>
-                        <p><b>Run script</b> with `python -m static_website mydomain.com`</p>
+                        <p><b>Run the script</b> with `python -m static_website mydomain.com`</p>
                         <p>The manual step is to link your domain to Amazon.
                             To do that you will need to provide NS records from script to your domain provider.
                             Just follow instructions from your providers. Here are the links for common ones:&nbsp;
@@ -102,7 +102,7 @@ export default props => (
                     <span>
                         <b>Enjoy!</b>
                         <p>Really, it should be done once all changes are propagated within Amazon infrastructure.
-                            If something went wrong it's safe to run script again. It's safe to contact us too.</p>
+                            If something went wrong it's safe to run the script again. It's safe to contact us too.</p>
                     </span>
                 ]}
                 </Ul>

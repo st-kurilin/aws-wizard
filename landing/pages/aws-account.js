@@ -19,16 +19,16 @@ export default props => (
                 <h5>AWS Account Configuration</h5>
                 Before you start using AWS-Wizard you need to have Amazon account created and CLI installed.
                 Since you are using our deploy script this is where most manual work from you required.
-                However, don't worry we've write that tutorial to get you on quick.
+                However, don't worry we've written that tutorial to get you on quick.
             </Section>
             <Section>
                 <Ul>{[<div>
                     <h6>AWS Sign Up</h6>
                     <p>
-                        Create account via <a href="https://portal.aws.amazon.com/billing/signup" target="_blank">aws
-                        site</a>.
-                        It's required to specify credit card and phone number. However, you are likely to pay
-                        nothing for the first year.
+                        Create an account via <a href="https://portal.aws.amazon.com/billing/signup" target="_blank">aws
+                        site.</a>
+                        It's required to specify a credit card and phone number.
+                        However, you are likely to pay nothing for the first year.
                     </p>
                 </div>,
                     <div>
@@ -39,7 +39,7 @@ export default props => (
                             <ul>
                                 <li>"Programmatic access" should be marked</li>
                                 <li>Use existing role "AdministratorAccess" to provide user permissions</li>
-                                <li>You will need "AWS Access Key ID" and "AWS Secret Access Key" in futher steps</li>
+                                <li>You will need "AWS Access Key ID" and "AWS Secret Access Key" in further steps</li>
                             </ul>
                         </p>
                     </div>,
