@@ -15,9 +15,19 @@ export default () => <nav className="white" role="navigation">
         </ul>
 
         <ul id="nav-mobile" className="sidenav">
-            <li><AwsAccountLink className=""/></li>
-            <li><StaticWebsiteLink className=""/></li>
+            <li onClick={removeOverlay}><AwsAccountLink /></li>
+            <li onClick={removeOverlay}><StaticWebsiteLink /></li>
+            <li><a  href="https://github.com/st-kurilin/aws-wizard" target="_blank">Github</a></li>
         </ul>
         <a href="#" data-target="nav-mobile" className="sidenav-trigger"><i className="material-icons">menu</i></a>
     </div>
 </nav>
+
+const removeOverlay = () => {
+    //remove overlay when side nav used
+    setTimeout(() => {
+        for (let item of document.getElementsByClassName("sidenav-overlay")) {
+            item.remove();
+        }
+    }, 500);
+};

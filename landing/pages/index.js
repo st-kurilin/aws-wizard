@@ -1,24 +1,22 @@
-import Nav from "../components/Nav";
 import Hero from "../components/Hero";
 import Feature from "../components/Feature";
 import Section from "../components/Section";
-import Footer from "../components/Footer";
 import ParallaxImg from "../components/ParallaxImg";
 import {StaticWebsiteLink} from "./static-website";
+import Layout from "./Layout";
 
 
 export default () => {
-    useHandlers();
     return (
-        <div>
-            <Nav />
+        <Layout>
             <Hero header="AWS Wizard" subheader="Amazon made simple.">
                 <StaticWebsiteButton />
             </Hero>
             <div>
                 <Section>
                     <Feature title="Speeds Up" icon="flash_on">
-                        You can get started with AWS easily, and focus on solving important problems instead of dealing with deployment.
+                        You can get started with AWS easily, and focus on solving important problems instead of dealing
+                        with deployment.
                     </Feature>
                     <Feature title="Best Practices" icon="book">
                         You don't need to know infrastructure patterns to follow them.
@@ -41,10 +39,12 @@ export default () => {
                         <p className="left-align light">
                             AWS is focused on enterprise clients that can afford to have dedicated DevOps engineers.
                             AWS Wizard makes it easy to use all infrastructure from AWS without special skills.
-                            It automates all the error-prone deployment and configuration tasks and sets everything up the way developers expect out of the box.
+                            It automates all the error-prone deployment and configuration tasks and sets everything up
+                            the way developers expect out of the box.
                             <br/>
                             This means that you can get started with AWS microservices easily,
-                            and focus on solving important business problems instead of dealing with AWS deployment workflows.
+                            and focus on solving important business problems instead of dealing with AWS deployment
+                            workflows.
                             <br/>
                             Cloudfront/Terraform/Ansible helps DevOps to build complex solutions.
                             AWS Wizard allows you to go without DevOps using simple solutions.
@@ -81,25 +81,13 @@ export default () => {
                     </Feature>
                 </Section>
                 <ParallaxImg
-                    text="Spend time on what brings value. Trust us to help you with infrastructure that will support you.">background2.jpg</ParallaxImg>
+                    text="Spend time on what brings value. Trust us to help you with infrastructure that will support you.">
+                    background2.jpg
+                </ParallaxImg>
             </div>
-            <Footer/>
-        </div>
+        </Layout>
     );
 }
-
-const useHandlers = () => {
-    const init = () => {
-        if ($) {
-            $('.sidenav').sidenav();
-            $('.parallax').parallax();
-        } else {
-            //JQuery is not loaded yet
-            setTimeout(init, 500);
-        }
-    };
-    React.useEffect(init);
-};
 
 const StaticWebsiteButton = props => <div className="row center">
     <br/>
@@ -111,7 +99,7 @@ const ServerlessButton = props => (
     <div className="row center">
         <br/>
         <span
-           className="btn-large waves-effect waves-light grey lighten-1">
+            className="btn-large waves-effect waves-light grey lighten-1">
             Coming Soon..
         </span>
         <br/>

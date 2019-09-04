@@ -5,12 +5,12 @@ import Section from "../components/Section";
 import Footer from "../components/Footer";
 import Ul from "../components/Ul";
 import {AwsAccountLink} from "./aws-account";
+import Layout from "./Layout";
 
 const googleDomainsLink =  <a href="https://domains.google/" target="_blank">Google Domains,</a>;
 const goDaddyLink =  <a href="https://www.godaddy.com/" target="_blank">GoDaddy.</a>;
 export default props => (
-    <div>
-        <Nav />
+    <Layout>
         <div>
             <br/>
             <br/>
@@ -43,9 +43,9 @@ export default props => (
             <Section>
                 <h5>End Result</h5>
                 <Ul>{[
-                    <span><b>index.html</b> as default page</span>,
-                    <span><b>HTTPs</b> support with free Amazon certificate</span>,
-                    <div><b>Redirections</b> done right
+                    <span key="index"><b>index.html</b> as default page</span>,
+                    <span key="https"><b>HTTPs</b> support with free Amazon certificate</span>,
+                    <div key="red"><b>Redirections</b> done right
                         <ul style={{marginLeft: 16}}>
                             <li>https://yourdomain.com/ -> https://yourdomain.com</li>
                             <li>https://www.yourdomain.com -> https://yourdomain.com</li>
@@ -53,13 +53,13 @@ export default props => (
                             <li>http://www.yourdomain.com -> https://yourdomain.com</li>
                         </ul>
                     </div>,
-                    <span>
+                    <span key="cloud">
                         <b>ClouldFront</b> distributions configured to do CDN distributions and cashing
                     </span>,
-                    <span>
+                    <span key="s3">
                         <b>S3</b> buckets configured to store content
                     </span>,
-                    <span>
+                    <span key="route">
                         <b>Route53</b> configured to connect ClouldFront to S3
                     </span>
                 ]}
@@ -68,13 +68,13 @@ export default props => (
             <Section>
                 <h5>Prerequisites</h5>
                 <Ul>{[
-                    <div>
+                    <div key="aws">
                         <span><b>AWS account</b> created and CLI configured.</span>
                         <p>
                             We have a tutorial on how to do it: <AwsAccountLink/>.
                         </p>
                     </div>,
-                    <div>
+                    <div key="domain">
                         <span><b>Domain</b> purchased.</span>
                         <p>
                             We recommend going with {googleDomainsLink} or {goDaddyLink}
@@ -85,8 +85,8 @@ export default props => (
             <Section>
                 <h5>Do it</h5>
                 <Ul>{[
-                    <span><b>Install script</b> with `pip install awswizard`</span>,
-                    <span>
+                    <span key="install"><b>Install script</b> with `pip install awswizard`</span>,
+                    <span key="run">
                         <p><b>Run the script</b> with `python -m static_website mydomain.com`</p>
                         <p>The manual step is to link your domain to Amazon.
                             To do that you will need to provide NS records from script to your domain provider.
@@ -99,7 +99,7 @@ export default props => (
                                target="_blank">namecheap.</a>
                         </p>
                     </span>,
-                    <span>
+                    <span key="enjoy">
                         <b>Enjoy!</b>
                         <p>Really, it should be done once all changes are propagated within Amazon infrastructure.
                             If something went wrong it's safe to run the script again. It's safe to contact us too.</p>
@@ -108,8 +108,7 @@ export default props => (
                 </Ul>
             </Section>
         </div>
-        <Footer/>
-    </div>
+    </Layout>
 );
 
 

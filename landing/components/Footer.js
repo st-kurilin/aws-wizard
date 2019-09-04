@@ -19,19 +19,20 @@ export default props => <footer className="page-footer teal">
                 <ul>
                     <li><AwsAccountLink className="white-text"/></li>
                     <li><StaticWebsiteLink className="white-text"/></li>
+                    <li><a className="white-text" href="https://github.com/st-kurilin/aws-wizard" target="_blank">Source Code</a></li>
                 </ul>
             </div>
             <div className="col l3 s12">
                 <h5 className="white-text">Connect</h5>
                 <ul>
                     <li><a className="white-text" href="mailto:st.kurilin@gmail.com?Subject=awswizzard" target="_top">st.kurilin@gmail.com</a></li>
-                    <li><a className="white-text" href="https://www.linkedin.com/in/stan-kurilin/">Connect on LinkedIN</a></li>
+                    <li><a className="white-text" href="https://www.linkedin.com/in/stan-kurilin/">Connect on LinkedIn</a></li>
                 </ul>
             </div>
         </div>
     </div>
     <div className="footer-copyright">
-        <div className="container">
+        <div className="container" style={{padding: 8}}>
             Supported by <a className="brown-text text-lighten-3" href="https://gotostan.com">gotostan</a>
         </div>
     </div>

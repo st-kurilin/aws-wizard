@@ -1,12 +1,10 @@
 import Link from "next/link";
-import Nav from "../components/Nav";
+import Layout from "./Layout";
 import Section from "../components/Section";
-import Footer from "../components/Footer";
 import Ul from "../components/Ul";
 
 export default props => (
-    <div>
-        <Nav />
+    <Layout>
         <div>
             <br/>
             <br/>
@@ -22,7 +20,7 @@ export default props => (
                 However, don't worry we've written that tutorial to get you on quick.
             </Section>
             <Section>
-                <Ul>{[<div>
+                <Ul>{[<div key="signup">
                     <h6>AWS Sign Up</h6>
                     <p>
                         Create an account via <a href="https://portal.aws.amazon.com/billing/signup" target="_blank">aws
@@ -31,24 +29,25 @@ export default props => (
                         However, you are likely to pay nothing for the first year.
                     </p>
                 </div>,
-                    <div>
+                    <div key="user">
                         <h6>Create User for Remote Control</h6>
                         <p>
                             Create a new user on <a href="https://console.aws.amazon.com/iam/" target="_blank">IAM
                             service</a>.
-                            <ul>
-                                <li>"Programmatic access" should be marked</li>
-                                <li>Use existing role "AdministratorAccess" to provide user permissions</li>
-                                <li>You will need "AWS Access Key ID" and "AWS Secret Access Key" in further steps</li>
-                            </ul>
                         </p>
+                        <ul>
+                            <li>"Programmatic access" should be marked</li>
+                            <li>Use existing role "AdministratorAccess" to provide user permissions</li>
+                            <li>You will need "AWS Access Key ID" and "AWS Secret Access Key" in further steps</li>
+                        </ul>
+
                     </div>,
-                    <div>
+                    <div key="dcli">
                         <h6>Download AWS CLI</h6>
                         The latest version is available at <a href="https://console.aws.amazon.com/iam/"
                                                               target="_blank">CLI website</a>.
                     </div>,
-                    <div>
+                    <div key="ccli">
                         <h6>Configure AWS CLI</h6>
                         Once AWS CLI downloaded you can run "aws configure". Default options are fine.
                         You've already obtained "AWS Access Key ID" and "AWS Secret Access Key" for remote control user.
@@ -56,8 +55,7 @@ export default props => (
                 ]}</Ul>
             </Section>
         </div>
-        <Footer/>
-    </div>
+    </Layout>
 );
 
 export const AwsAccountLink = props => (
