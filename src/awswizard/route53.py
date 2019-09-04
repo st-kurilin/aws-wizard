@@ -1,11 +1,11 @@
 import logging
 
-from u import exec
+from .u import exec
 
-def get_ns_servers(domain, shared_hostedzone):
+def get_ns_servers(domain, shared_hostedzone = False):
     return _get_recorsets(domain, shared_hostedzone, "NS")
 
-def add_recordsset(domain, shared_hostedzone, records):
+def add_recordsset(domain, records, shared_hostedzone = False):
     if len(records) > 0:
         hostedzone = _obtain_hostedzone(domain, shared_hostedzone)
         logging.info(f'Adding records {len(records)} to hostedzone {hostedzone} for domain {domain}')

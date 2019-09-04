@@ -1,5 +1,6 @@
-from u import exec
 import logging
+from .u import exec
+
 
 def cert_and_recordsets(domain):
     logging.debug(f"Getting validated cert for {domain}")

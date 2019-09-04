@@ -1,4 +1,8 @@
-aws-wizard
+AWS Wizard
+
+More information available on https://aws-wizard.com 
+
+
 
 Done:
 domain bucket creation
@@ -14,3 +18,7 @@ Todo:
 - cert interactive config (wait for validation)
 - multiregional setup support
 - handle domains purchased on amazon: add ns records via script?
+
+
+
+python3 setup.py sdist

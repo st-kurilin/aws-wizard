@@ -2,3 +2,7 @@
 .idea/
 .next/
 node_modules
+dist/
+/dist/
+*egg-info*
+

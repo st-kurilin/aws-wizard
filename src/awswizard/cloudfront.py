@@ -1,6 +1,6 @@
 import json
 
-from u import exec
+from .u import exec
 
 
 def recordsset(domain, s3_website, cert, root_object):

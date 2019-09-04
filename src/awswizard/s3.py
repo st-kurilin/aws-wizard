@@ -1,7 +1,7 @@
-from u import exec
 import json
 import logging
 
+from .u import exec
 
 def obtain_web_bucket(name):
     logging.info(f"configuring s3 bucket {name}")
