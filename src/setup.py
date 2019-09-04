@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="awswizard",
-    version='0.0.14',
+    version='0.0.1',
     author="aws wizard",
     author_email="st.kurilin@gmail.com",
     description="Amazon made simple.",

@@ -56,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', '-v', help='Give more output.', action="store_true", default=True)
     subparsers = parser.add_subparsers(help='commands')
 
-    list_parser = subparsers.add_parser('publish_static', help='Publish static website')
+    list_parser = subparsers.add_parser('static_website', help='Publish static website')
     list_parser.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
     list_parser.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content',default='./')
     list_parser.add_argument('--shared_hostedzone',  help='Reuse (saves you $0.5/month per domain)', action="store_true", default=False)
@@ -66,13 +66,13 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()  #should be called before "if" to support "awswizard -h"
-    if "publish_static" not in sys.argv: # to support sys.arg[1] doesn't work for main.py -v publish_static domain.com
+    if "static_website" not in sys.argv: # to support sys.arg[1] doesn't work for main.py -v publish_static domain.com
         print ("Only publish_static command supported")
     else:
         args = parser.parse_args()
         logging.basicConfig(level=(logging.DEBUG if args.verbose else logging.WARNING))
 
-        print ("publish_static?")
+        print ("static_website")
         publish_static(args.domain, args.directory, args.shared_hostedzone)
 
 
