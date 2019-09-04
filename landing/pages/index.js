@@ -6,11 +6,9 @@ import Footer from "../components/Footer";
 import ParallaxImg from "../components/ParallaxImg";
 import {StaticWebsiteLink} from "./static-website";
 
+
 export default () => {
-    React.useEffect(() => {
-        $('.sidenav').sidenav();
-        $('.parallax').parallax();
-    });
+    useHandlers();
     return (
         <div>
             <Nav />
@@ -89,6 +87,19 @@ export default () => {
         </div>
     );
 }
+
+const useHandlers = () => {
+    const init = () => {
+        if ($) {
+            $('.sidenav').sidenav();
+            $('.parallax').parallax();
+        } else {
+            //JQuery is not loaded yet
+            setTimeout(init, 500);
+        }
+    };
+    React.useEffect(init);
+};
 
 const StaticWebsiteButton = props => <div className="row center">
     <br/>
