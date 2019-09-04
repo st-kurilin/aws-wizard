@@ -2,24 +2,24 @@ import logging
 
 from .u import exec
 
-def get_ns_servers(domain, shared_hostedzone = False):
-    return _get_recorsets(domain, shared_hostedzone, "NS")
+def get_ns_servers(domain):
+    return _get_recorsets(domain, "NS")
 
-def add_recordsset(domain, records, shared_hostedzone = False):
+def add_recordsset(domain, records):
     if len(records) > 0:
-        hostedzone = _obtain_hostedzone(domain, shared_hostedzone)
+        hostedzone = _obtain_hostedzone(domain)
         logging.info(f'Adding records {len(records)} to hostedzone {hostedzone} for domain {domain}')
         _add_records_to_hostedzone(hostedzone, records)
 
 
-def _obtain_hostedzone(domain, shared_hostedzone):
+def _obtain_hostedzone(domain):
     logging.debug(f'Obtaining hostedzone for {domain}')
-    get = _get_hostedzone(domain. reuse_zone_for_other_domains)
+    get = _get_hostedzone(domain)
     if get is None:
         created = _create_hostedzone(domain)
         if created is None:
             logging.debug(f'Will try to get hostedzone once again {domain}')
-            get = _get_hostedzone(domain, shared_hostedzone)
+            get = _get_hostedzone(domain)
             if get is None:
                 raise Exception(f"Failed to obtain hostedzone for {domain} ")
             else:
@@ -49,11 +49,10 @@ def _create_hostedzone(domain):
     return created[0]
 
 
-def _get_hostedzone(domain, shared_hostedzone):
+def _get_hostedzone(domain):
     logging.debug(f'Searching hostedzone for {domain}')
-    domainFilter = f"--dns-name {domain}" if shared_hostedzone else ""
-    stdout = exec(f'aws route53 list-hosted-zones-by-name {domainFilter}')
-    found = [l.split()[2].split("/")[2] for l in stdout.splitlines() if l.startswith("HOSTEDZONES")]
+    stdout = exec(f'aws route53 list-hosted-zones-by-name --output text --query "HostedZones[*].[Name, Id]"')
+    found = [l.split()[1].split("/")[2] for l in stdout.splitlines() if l.startswith(domain)]
     logging.debug(f'found hostzones: .')
     if len(found) > 0:
         res = found[0]
@@ -63,8 +62,8 @@ def _get_hostedzone(domain, shared_hostedzone):
         logging.debug(f'get_hostedzone did not find any hostzones.')
         return None
 
-def _get_recorsets(domain, shared_hostedzone, record_type):
-    hostedzone = _obtain_hostedzone(domain, shared_hostedzone)
+def _get_recorsets(domain, record_type):
+    hostedzone = _obtain_hostedzone(domain)
     stdout = exec(f"aws route53 list-resource-record-sets --hosted-zone-id {hostedzone} --output text")
     res = []
     in_flag = False

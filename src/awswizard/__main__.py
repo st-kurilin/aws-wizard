@@ -9,14 +9,14 @@ from . import dns
 from . import route53
 from . import s3
 
-def publish_static(domain, directory, shared_hostedzone):
+def publish_static(domain, directory):
     print("=======Step 1/3: Publish Content to S3 Buckets=======")
     (s3_website, s3_recordsset) = s3.obtain_web_bucket(domain)
     s3.sync(domain, directory)
     print(f"=======Step 1/3 Completed: Content available by http://{s3_website} =======")
     print("=======Step 2/3: Configure Domain=======")
-    route53.add_recordsset(domain, s3_recordsset, shared_hostedzone)
-    ns_servers = route53.get_ns_servers(domain, shared_hostedzone)
+    route53.add_recordsset(domain, s3_recordsset)
+    ns_servers = route53.get_ns_servers(domain)
     dns_ok = dns.check(domain, ns_servers)
     if not dns_ok:
         print("Please add NS records to your DNS")
@@ -46,20 +46,19 @@ def publish_static(domain, directory, shared_hostedzone):
         print("Certificate issues and validated.")
 
     route53.add_recordsset(domain, cloudfront.recordsset(domain, s3_website, cert_val, "index.html"))
-    route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", s3_website, cert, ""))
-    print(f"=======Step 3/3 Completed: Content available by https://{domain} =======")
+    route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", s3_website, cert_val, ""))
+    print(f"=======Step 3/3 Completed: Content will be available soon at https://{domain} =======")
 
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='AWS made easy.')
-    parser.add_argument('--verbose', '-v', help='Give more output.', action="store_true", default=True)
+    parser.add_argument('--verbose', '-V', help='Give more output.', action="store_true", default=True)
     subparsers = parser.add_subparsers(help='commands')
 
     list_parser = subparsers.add_parser('static_website', help='Publish static website')
     list_parser.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
     list_parser.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content',default='./')
-    list_parser.add_argument('--shared_hostedzone',  help='Reuse (saves you $0.5/month per domain)', action="store_true", default=False)
 
     list_parser = subparsers.add_parser('publish_lambda', help='Publish lambda function')
     list_parser.add_argument('file',  help='Path to local file', default='./main.py')
@@ -70,10 +69,10 @@ if __name__ == "__main__":
         print ("Only publish_static command supported")
     else:
         args = parser.parse_args()
+        print (args)
         logging.basicConfig(level=(logging.DEBUG if args.verbose else logging.WARNING))
 
-        print ("static_website")
-        publish_static(args.domain, args.directory, args.shared_hostedzone)
+        publish_static(args.domain, args.directory)
 
 
 
