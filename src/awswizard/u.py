@@ -16,4 +16,4 @@ def exec(_cmd):
         if out is None:
             return ""
         else:
-            return out
+            return out.strip()

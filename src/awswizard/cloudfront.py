@@ -1,4 +1,5 @@
 import json
+import logging
 
 from .u import exec
 
@@ -6,15 +7,28 @@ from .u import exec
 def recordsset(domain, s3_website, cert, root_object):
     dist = _get_distribution(domain)
     if dist is None:
-        print(f"Distribution for {domain} not found. Will create new one")
+        logging.debug(f"Distribution for {domain} not found. Will create new one")
         _create_distribution(domain, s3_website, cert, root_object)
         return _wrap_in_recordsset(domain, _get_distribution(domain)['dist_domain'])
     else:
-        print(f"Distribution for {domain} already exist: {dist['dist_domain']}")
+        logging.debug(f"Distribution for {domain} already exist: {dist['dist_domain']}")
         if dist['enabled'] is False: raise Exception(f"distribution found, but it's not enabled")
         if dist['cert'] != cert: raise Exception(f"distribution found, but it has different certificate")
         return _wrap_in_recordsset(domain, dist['dist_domain'])
 
+
+def invalidate(domain):
+    dist = _get_distribution(domain)
+    if dist is None:
+        raise Exception(f"Cannot find distribution for domain {domain}")
+    else:
+        dist_id = dist['id']
+        invalidation = exec(f"aws cloudfront create-invalidation --query Invalidation.Id --distribution-id {dist_id} --paths /* ")
+        def is_completed():
+            status = exec (f"aws cloudfront get-invalidation --id {invalidation} --distribution-id {dist_id} --query Invalidation.Status")
+            logging.debug(f"Domain {domain} has invalidation {invalidation} in status {status}.")
+            return status == "Completed"
+        return is_completed
 
 def _wrap_in_recordsset(domain, dist_domain):
     if dist_domain is None:
@@ -33,11 +47,10 @@ def _wrap_in_recordsset(domain, dist_domain):
 
 def _get_distribution(domain):
     res = exec(
-        f'aws cloudfront list-distributions --output text --query "DistributionList.Items[*].[Aliases.Items[0], DomainName, Enabled, ViewerCertificate.ACMCertificateArn]"')
-    found = [{"dist_domain": l.split()[1], "enabled": l.split()[2] == "True", "cert": l.split()[3]}
+        f'aws cloudfront list-distributions --output text --query "DistributionList.Items[*].[Aliases.Items[0], Id, DomainName, Enabled, ViewerCertificate.ACMCertificateArn]"')
+    found = [{"id": l.split()[1], "dist_domain": l.split()[2], "enabled": l.split()[3] == "True", "cert": l.split()[4]}
              for l in res.splitlines() if l.startswith(domain)]
     return found[0] if found else None
-
 
 def _create_distribution(domain, s3_website, cert, root_object):
     config = {
@@ -117,6 +130,6 @@ def _create_distribution(domain, s3_website, cert, root_object):
         exec(f"aws cloudfront create-distribution --distribution-config '{json.dumps(config)}'")
     except Exception as e:
         if "CNAMEAlreadyExists" in str(e):
-            print("cloudfront distribution already exist for this domain")
+            logging.debug("cloudfront distribution already exist for this domain")
         else:
             raise e

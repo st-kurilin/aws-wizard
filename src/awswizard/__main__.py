@@ -49,30 +49,45 @@ def publish_static(domain, directory):
     route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", s3_website, cert_val, ""))
     print(f"=======Step 3/3 Completed: Content will be available soon at https://{domain} =======")
 
-
+def update_static(domain, directory):
+    print("=======Step 1/2: Sync S3 Bucket=======")
+    s3.sync(domain, directory)
+    print(f"=======Step 1/2 S3 Content Updated =======")
+    print("=======Step 2/2: Invalidate CloudFront Distribution=======")
+    is_invalidation_completed_func = cloudfront.invalidate(domain)
+    time.sleep(15)
+    invalidation_completed = is_invalidation_completed_func()
+    while not invalidation_completed:
+        print(f"Waiting for CloudFront invalidation to complete...")
+        time.sleep(30)
+        invalidation_completed = is_invalidation_completed_func()
+    print("=======Step 2/2: CloudFront invalidated. New content should in 5-10 minutes.=======")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='AWS made easy.')
-    parser.add_argument('--verbose', '-V', help='Give more output.', action="store_true", default=True)
+    parser.add_argument('--verbose', '-V', help='Give more output.', action="store_true", default=False)
     subparsers = parser.add_subparsers(help='commands')
 
     list_parser = subparsers.add_parser('static_website', help='Publish static website')
     list_parser.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
     list_parser.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content',default='./')
 
+    list_parser = subparsers.add_parser('update_static', help='Update static content. Works faster than static_website command')
+    list_parser.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
+    list_parser.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content',default='./')
+
     list_parser = subparsers.add_parser('publish_lambda', help='Publish lambda function')
     list_parser.add_argument('file',  help='Path to local file', default='./main.py')
 
-
     args = parser.parse_args()  #should be called before "if" to support "awswizard -h"
-    if "static_website" not in sys.argv: # to support sys.arg[1] doesn't work for main.py -v publish_static domain.com
-        print ("Only publish_static command supported")
-    else:
-        args = parser.parse_args()
-        print (args)
-        logging.basicConfig(level=(logging.DEBUG if args.verbose else logging.WARNING))
-
+    logging.basicConfig(level=(logging.DEBUG if args.verbose else logging.WARNING))
+    if "static_website" in sys.argv:
         publish_static(args.domain, args.directory)
-
-
+    elif "update_static" in sys.argv:
+        update_static(args.domain, args.directory)
+        print ("------------------------")
+    else:
+        raise Exception("Failed to parse arguments.\nTo get assistance run "
+                        "'python -m awswizard -h' or visit aws-wizard.com ")
+    print ("------------------------2")
 
