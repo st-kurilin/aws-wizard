@@ -4,6 +4,8 @@ def register_commands(parser):
     sp = parser.add_parser('server', help="Run AWS instance with name if doesn't exist")
     sp.add_argument('name', help='Server name', metavar='myserver', default="")
     sp.add_argument('--ami', help='Base AMI.', metavar='ami-1234', default='')
+    sp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa',
+                    default='id_rsa', dest="keys")
 
     ksp = parser.add_parser('kill-server', help="Terminate and delete AWS Instance")
     ksp.add_argument('name', help='Server name', metavar='myserver', default="")
@@ -25,9 +27,10 @@ def register_commands(parser):
     ssp.add_argument('image', help='Name for server-group', metavar='myimage')
 
 
-def exec_command(args):
-    if "server" in args:
-        server(args.name, args.ami)
+def exec_command(argv, args):
+    print ("exec_command2", args)
+    if "server" in argv:
+        server(args.name, args.ami, args.keys)
         return True
     elif "kill-server" in args:
         server(args.name)
@@ -47,8 +50,14 @@ def exec_command(args):
     else:
         return False
 
-def server(name, image_ami):
-    raise Exception("Not implemented")
+def server(name, image_ami, keys):
+    ami = image_ami if image_ami != "" else images.find_ubuntu_ami()
+    instance = ec2.find_instance_by_tag(name)
+    if instance is not None:
+        print (f"Instance with name {name} already exists: {instance['id']}")
+        print (instance['ip'])
+    else:
+        ec2.run_instance(image_ami, name, keys)
 
 def kill_server(name):
     raise Exception("Not implemented")
