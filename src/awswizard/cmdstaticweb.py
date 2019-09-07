@@ -1,21 +1,21 @@
 import time
 
+from . import dns
 from .aws import cert
 from .aws import cloudfront
 from .aws import route53
 from .aws import s3
 
-from . import dns
-
 
 def register_commands(parser):
     swp = parser.add_parser('static_website', help='Publish static website')
     swp.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
-    swp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content',default='./')
+    swp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content', default='./')
 
     usp = parser.add_parser('update_static', help='Update static content. Works faster than static_website command')
     usp.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
-    usp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content',default='./')
+    usp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content', default='./')
+
 
 def exec_command(args):
     if "static_website" in args:
@@ -25,6 +25,7 @@ def exec_command(args):
         update_static(args.domain, args.directory)
         return True
     return False
+
 
 def publish_static(domain, directory):
     print("=======Step 1/3: Publish Content to S3 Buckets=======")
@@ -66,6 +67,7 @@ def publish_static(domain, directory):
     route53.add_recordsset(domain, cloudfront.recordsset(f"www.{domain}", s3_website, cert_val, ""))
     print(f"=======Step 3/3 Completed: Content will be available soon at https://{domain} =======")
 
+
 def update_static(domain, directory):
     print("=======Step 1/2: Sync S3 Bucket=======")
     s3.sync(domain, directory)
@@ -79,5 +81,3 @@ def update_static(domain, directory):
         time.sleep(30)
         invalidation_completed = is_invalidation_completed_func()
     print("=======Step 2/2: CloudFront invalidated. New content should in 5-10 minutes.=======")
-
-
