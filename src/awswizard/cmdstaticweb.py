@@ -17,11 +17,11 @@ def register_commands(parser):
     usp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content', default='./')
 
 
-def exec_command(args):
-    if "static_website" in args:
+def exec_command(argv, args):
+    if "static_website" in argv:
         publish_static(args.domain, args.directory)
         return True
-    elif "update_static" in args:
+    elif "update_static" in argv:
         update_static(args.domain, args.directory)
         return True
     return False
