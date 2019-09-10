@@ -17,3 +17,18 @@ def find_ubuntu_ami():
             logging.debug(f"Selected image: {ami} / {desc}")
             return ami
     raise Exception("Failed to find ubuntu ami")
+
+
+def create_image(ins_id, name):
+    return aws(f"aws ec2 create-image --instance-id {ins_id} --name '{name}' --no-reboot --query ImageId")
+
+
+def get_my_images():
+    return aws(f"aws ec2 describe-images --owners self --query Images[0].Name").splitlines()
+
+def find_own_image_by_name(name):
+    return aws(f"aws ec2 describe-images --owners self --filters 'Name=name,Values={name}' --query Images[0].ImageId")
+
+
+def delete_image(image_id):
+    return aws(f"aws ec2 deregister-image --image-id {image_id}")
