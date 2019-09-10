@@ -24,7 +24,7 @@ def create_image(ins_id, name):
 
 
 def get_my_images():
-    return aws(f"aws ec2 describe-images --owners self --query Images[0].Name").splitlines()
+    return aws(f"aws ec2 describe-images --owners self --query Images[*].Name").split()
 
 def find_own_image_by_name(name):
     return aws(f"aws ec2 describe-images --owners self --filters 'Name=name,Values={name}' --query Images[0].ImageId")

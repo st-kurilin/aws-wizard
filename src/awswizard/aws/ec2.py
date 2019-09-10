@@ -14,21 +14,22 @@ def _get_aws_pairs():
                          " --region us-east-1  --output=text --query='KeyPairs'").splitlines()]
 
 
-def get_keys_name(input):
+def get_keys_name(specified):
     available = _get_aws_pairs()
-    if input in available:
-        logging.debug(f"Using SSH Key {input} from AWS")
+    if specified in available:
+        logging.debug(f"Using SSH Key {specified} from AWS1")
         return input
-    name = ''.join(os.path.basename(input).split())  # filename without spaces
-    for name in available:
-        logging.debug(f"Using SSH Key {name} from AWS")
+    name = ''.join(os.path.basename(specified).split())  # filename without spaces
+    if name in available:
+        logging.debug(f"Using SSH Key {name} from AWS2")
         return name
-    for path in [f"{input}.pub", input, f"~/.ssh/{input}.pub", f"~/.ssh/{input}"]:
-        if os.path.exists(path):
-            # TODO: handle case when (1)key created (2) file with pub key removed
-            aws(f"aws ec2 import-key-pair --key-name '{name}' --public-key-material file://{input}")
-            logging.debug(f"Using SSH Key {name} that was imported to AWS from {path}")
+    for path in [f"./{specified}.pub", f"~/.ssh/{specified}.pub", specified, f"~/.ssh/{specified}", ]:
+        try:
+            aws(f"aws ec2 import-key-pair --key-name '{name}' --public-key-material file://{path}")
+            logging.debug(f"Using SSH Key {name} that was imported to AWS from {specified}")
             return name
+        except:
+            logging.debug(f"Failed to generate aws keys from {path}")
     return None
 
 

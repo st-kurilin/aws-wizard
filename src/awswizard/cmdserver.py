@@ -8,11 +8,16 @@ from .aws import images
 
 def register_commands(parser):
     sp = parser.add_parser('server', help="Run AWS instance with name if doesn't exist")
-    sp.add_argument('name', help='Server name', metavar='myserver', default="")
+    sp.add_argument('server_name', help='Server name', metavar='myserver', default="")
     sp.add_argument('--ami', help='Base AMI.', metavar='ami-1234', default='')
     sp.add_argument('--image-name', help='Your image that was created by freezing server', metavar='myimage', default='')
-    sp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa',
-                    default='id_rsa.pub', dest="keys")
+    sp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa.pub',
+                    default='id_rsa', dest="keys")
+
+    cp = parser.add_parser('connect-to-server', help="SSH to server")
+    cp.add_argument('server_name', help='Server name', metavar='myserver', default="")
+    cp.add_argument('--ssh-keys', help='SSH keys that were used during server creation', metavar='./id_rsa',
+                    default='id_rsa', dest="keys")
 
     ksp = parser.add_parser('kill-server', help="Terminate and delete AWS Instance")
     ksp.add_argument('name', help='Server name', metavar='myserver', default="")
@@ -39,7 +44,10 @@ def register_commands(parser):
 
 def exec_command(argv, args):
     if "server" in argv:
-        server(args.name, args.ami, args.keys)
+        server(args.server_name, args.ami, args.keys)
+        return True
+    if "connect-to-server" in argv:
+        connect_to_server(args.server_name, args.keys)
         return True
     elif "kill-server" in argv:
         kill_server(args.name)
@@ -80,6 +88,13 @@ def server(name, image_ami, keys):
         print (f"Server {name} is ready. IP:")
         print (ip)
 
+def connect_to_server(name, keys):
+    instance = ec2.find_instance_by_tag(name)
+    if instance is None:
+        print (f"Cannot find server with name {name}")
+    else:
+        print (f"Cannecting to server {name} ({instance['id']}/{instance['ip']})")
+        ssh.login_to_server("ubuntu", instance['ip'], keys)
 
 def kill_server(name):
     ins_id, is_completed_func = ec2.terminate_instance(name)
