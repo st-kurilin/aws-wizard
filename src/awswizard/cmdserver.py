@@ -54,8 +54,12 @@ def register_commands(parser):
     ssp.add_argument('--max-size', help='Maximum number of instances. Default to 5',
                      metavar='5', default='5', type=int, dest="max_size")
 
+    parser.add_parser('list-clusters', help='Lists all clusters')
+
     dsp = parser.add_parser('kill-cluster', help='Deletes resources related to cluster')
     dsp.add_argument('cluster_name', help='Name for cluster', metavar='mycluster')
+
+
 
 
 def exec_command(argv, args):
@@ -83,10 +87,13 @@ def exec_command(argv, args):
         return True
     elif "run-cluster" in argv:
         img = args.image_name if args.image_name != "" else args.cluster_name
-        server_group(args.cluster_name, img, args.domain, args.keys, args.min_size, args.max_size)
+        run_cluster(args.cluster_name, img, args.domain, args.keys, args.min_size, args.max_size)
+        return True
+    elif "list-clusters" in argv:
+        list_clusters()
         return True
     elif "kill-cluster" in argv:
-        delete_server_group(args.cluster_name)
+        delete_cluster(args.cluster_name)
         return True
     else:
         return False
@@ -127,6 +134,14 @@ def list_servers(name):
             for num, ins in enumerate(instances, start=1):
                 print (f"({num}): {ins['ip']} ({ins['id']})")
 
+def list_clusters():
+    clusters = ec2.list_load_balancers()
+    clusters.sort(key=lambda e: e['name'])
+    if len(clusters) == 0:
+        print (f"No clusters found")
+    else:
+        for num, ins in enumerate(clusters, start=1):
+            print (f"({num}): {ins['name']} ({ins['dns_name']})")
 
 def connect_to_server(name, keys, ip_filter, index_filter):
     servers = [ins for num, ins in enumerate(ec2.find_instances_by_tag(name), start=1)
@@ -190,7 +205,7 @@ def delete_image(image_name):
         print (f"Image {image_name}({ami}) deleted...")
 
 
-def server_group(group_name, image_name, domain, keys, min_size, max_size):
+def run_cluster(group_name, image_name, domain, keys, min_size, max_size):
     ami = image_name if image_name.startswith("ami") else images.find_own_image_by_name(image_name)
     if ami is None:
         print (f"Cannot find image for with name {image_name}")
@@ -208,7 +223,7 @@ def server_group(group_name, image_name, domain, keys, min_size, max_size):
         print (f"Server group available via {domain if domain != '' else lb_dns}")
 
 
-def delete_server_group(group_name):
+def delete_cluster(group_name):
     ec2.delete_load_balancer(group_name)
     print (f"Load balancer deleted.")
     #todo: delete all route53 records
