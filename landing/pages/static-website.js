@@ -87,7 +87,7 @@ export default props => (
                 <Ul>{[
                     <span key="install"><b>Install script</b> with `pip install awswizard`</span>,
                     <span key="run">
-                        <p><b>Run the script</b> with `python -m static_website mydomain.com`</p>
+                        <p><b>Run the script</b> with <code>python -m run-static-website mydomain.com</code></p>
                         <p>The manual step is to link your domain to Amazon.
                             To do that you will need to provide NS records from script to your domain provider.
                             Just follow instructions from your providers. Here are the links for common ones:&nbsp;

@@ -2,5 +2,5 @@
 
 (cd ./landing; npm run pack)
 echo "~~~~~"
-./run.sh update_static aws-wizard.com -d ./landing/out
+./run.sh update-static-website aws-wizard.com -d ./landing/out
 echo "~~~~~"
