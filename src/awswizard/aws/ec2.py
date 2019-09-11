@@ -152,12 +152,19 @@ def create_auto_scaling_group(name, template_name, target_group, min, max):
     subnets = aws(f"aws ec2 describe-subnets "
                   f"--filters 'Name=vpc-id,Values={vpc}' --query 'Subnets[*].SubnetId'").split()
     logging.debug(f"Subnets in VPC {vpc}: {subnets}")
-    res = aws(f"aws autoscaling create-auto-scaling-group --auto-scaling-group-name {name} "
-              f" --launch-template LaunchTemplateName={template_name} "
-              f" --min-size {min} --max-size {max} "
-              f" --target-group-arns {target_group} --vpc-zone-identifier {','.join(subnets)}")
-    logging.debug(f"Auto scaling group {name} created({res})")
-    return _is_instances_ready(name)
+    try:
+        res = aws(f"aws autoscaling create-auto-scaling-group --auto-scaling-group-name {name} "
+                  f" --launch-template LaunchTemplateName={template_name} "
+                  f" --min-size {min} --max-size {max} "
+                  f" --target-group-arns {target_group} --vpc-zone-identifier {','.join(subnets)}")
+        logging.debug(f"Auto scaling group {name} created({res})")
+        return _is_instances_ready(name)
+    except Exception as e:
+        if "AlreadyExists" in str(e):
+            logging.debug(f"Auto scaling group {name} already exists")
+            return lambda: True
+        else:
+            raise e
 
 
 def delete_auto_scaling_group(name):
@@ -167,7 +174,21 @@ def delete_auto_scaling_group(name):
         pass  # doesnt exist?
 
 
-def create_load_balancer(name, target_group):
+def create_load_balancer(name, target_group, domain):
+    def _wrap_in_recordsset(dns):
+        if domain == "":
+            return []
+        else:
+            return [{
+                "AliasTarget": {
+                    # const from docs https://docs.aws.amazon.com/general/latest/gr/rande.html
+                    "HostedZoneId": "Z26RNL4JYFTOTI",
+                    "EvaluateTargetHealth": False,
+                    "DNSName": f"{dns}."
+                },
+                "Type": "A",
+                "Name": f"{domain}."
+            }]
     vpc = _get_vpc_id()
     subnets = aws(f"aws ec2 describe-subnets "
                   f" --filters 'Name=vpc-id,Values={vpc}' --query 'Subnets[*].SubnetId'").split()
@@ -179,11 +200,21 @@ def create_load_balancer(name, target_group):
                    f" --protocol TCP --port 80  --default-actions Type=forward,TargetGroupArn={target_group}")
     logging.debug(f"Listener to connect load balancer {lb} with target group {target_group} created: {listener}")
     dns = aws(f"aws elbv2 describe-load-balancers --load-balancer-arns {lb} --query LoadBalancers[0].DNSName")
-    return dns
+    return [dns, _wrap_in_recordsset(dns)]
 
 
 def delete_load_balancer(name):
-    return aws(f"aws elb delete-load-balancer --load-balancer-name {name}")
+    arns = [lb["arn"] for lb in list_load_balancers() if lb["name"] == name]
+    if len(arns) == 0:
+        logging.debug(f"No load balancers with name {name} found")
+    else:
+        logging.debug(f"Going to delete load balancer {name} ({arns[0]})")
+        aws(f"aws elbv2 delete-load-balancer --load-balancer-arn {arns[0]}")
+
+def list_load_balancers():
+    out = aws(f"aws elbv2 describe-load-balancers "
+              f" --query LoadBalancers[*][LoadBalancerName,DNSName,LoadBalancerArn]")
+    return [{"name": ll[0], "dns_name": ll[1], "arn": ll[2]}for ll in [l.split() for l in out.splitlines()]]
 
 
 def _get_vpc_id():

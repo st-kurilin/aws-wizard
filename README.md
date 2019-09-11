@@ -25,14 +25,17 @@ Amazaon made easy [aws-wizard.com](https://aws-wizard.com)
 ####Done
 - server run
 - images support
-- scaling support via server-groups
+- scaling support via clusters
 - connect to server in group
-####Todo
-- check that individual servers are not accessible via web (but individual servers are)
-- name launch_template after image, not server-group 
-- delete louch template on image delete ???
-- routing for servers/server-groups
 - list running servers
+- routing for clusters
+####Todo
+- list running clusters
+- check that individual servers are not accessible via web (but individual servers are)
+- name launch_template after image, not clusters 
+- delete louch template on image delete ???
+- routing for servers
+- routing for clusters with subdomains
 - pause/resume server
 - multiregion support
 - instance type config support

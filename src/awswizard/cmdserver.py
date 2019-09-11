@@ -1,9 +1,11 @@
 import logging
 import time
 
+from . import dns
 from . import ssh
 from .aws import ec2
 from .aws import images
+from .aws import route53
 
 
 def register_commands(parser):
@@ -40,10 +42,11 @@ def register_commands(parser):
     df = parser.add_parser('delete-image', help="Removes image")
     df.add_argument('image_name', help='Image name', metavar='myimage', default="")
 
-    ssp = parser.add_parser('run-server-group', help='Runs scalable group of servers')
-    ssp.add_argument('server_group_name', help='Name for server group', metavar='mygroup')
+    ssp = parser.add_parser('run-cluster', help='Runs scalable group of servers')
+    ssp.add_argument('cluster_name', help='Name for server group', metavar='mygroup')
     ssp.add_argument('--image-name', help='Name for image to run in group', metavar='myimage', dest="image_name",
                      required=True)
+    ssp.add_argument('--domain', help='Domain name to be attached to server', metavar='mysite.com', default='')
     ssp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa.pub',
                      default='id_rsa', dest="keys")
     ssp.add_argument('--min-size', help='Minimum number of instances. Default to 2',
@@ -51,8 +54,8 @@ def register_commands(parser):
     ssp.add_argument('--max-size', help='Maximum number of instances. Default to 5',
                      metavar='5', default='5', type=int, dest="max_size")
 
-    dsp = parser.add_parser('kill-server-group', help='Deletes resources connected to server group')
-    dsp.add_argument('server_group_name', help='Name for server-group', metavar='mygroup')
+    dsp = parser.add_parser('kill-cluster', help='Deletes resources related to cluster')
+    dsp.add_argument('cluster_name', help='Name for cluster', metavar='mycluster')
 
 
 def exec_command(argv, args):
@@ -78,12 +81,12 @@ def exec_command(argv, args):
     elif "delete-image" in argv:
         delete_image(args.image_name)
         return True
-    elif "run-server-group" in argv:
-        img = args.image_name if args.image_name != "" else args.server_group
-        server_group(args.server_group_name, img, args.keys, args.min_size, args.max_size)
+    elif "run-cluster" in argv:
+        img = args.image_name if args.image_name != "" else args.cluster_name
+        server_group(args.cluster_name, img, args.domain, args.keys, args.min_size, args.max_size)
         return True
-    elif "kill-server-group" in argv:
-        delete_server_group(args.server_group_name)
+    elif "kill-cluster" in argv:
+        delete_server_group(args.cluster_name)
         return True
     else:
         return False
@@ -187,7 +190,7 @@ def delete_image(image_name):
         print (f"Image {image_name}({ami}) deleted...")
 
 
-def server_group(group_name, image_name, keys, min_size, max_size):
+def server_group(group_name, image_name, domain, keys, min_size, max_size):
     ami = image_name if image_name.startswith("ami") else images.find_own_image_by_name(image_name)
     if ami is None:
         print (f"Cannot find image for with name {image_name}")
@@ -195,16 +198,20 @@ def server_group(group_name, image_name, keys, min_size, max_size):
         template = ec2.create_launch_template(group_name, ami, _get_aws_keys(keys))
         target_group = ec2.create_target_group(group_name)
         is_ready = ec2.create_auto_scaling_group(group_name, group_name, target_group, min_size, max_size)
-        dns = ec2.create_load_balancer(group_name, target_group)
+        [lb_dns, ns] = ec2.create_load_balancer(group_name, target_group, domain)
+        if len(ns) != 0:
+            route53.add_recordsset(domain, ns)
+            dns.wait_for_dns_config(domain)
         while is_ready() is False:
             print (f"Waiting instances initialization...")
             time.sleep(15)
-        print (f"Server group available via {dns}")
+        print (f"Server group available via {domain if domain != '' else lb_dns}")
 
 
 def delete_server_group(group_name):
     ec2.delete_load_balancer(group_name)
     print (f"Load balancer deleted.")
+    #todo: delete all route53 records
     auto_scaling_group = ec2.delete_auto_scaling_group(group_name)
     print (f"Autoscaling group deleted")
     ins_id, is_completed_func = ec2.terminate_instances(group_name)
