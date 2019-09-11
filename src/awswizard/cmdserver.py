@@ -7,7 +7,7 @@ from .aws import images
 
 
 def register_commands(parser):
-    sp = parser.add_parser('server', help="Run AWS instance with name if doesn't exist")
+    sp = parser.add_parser('run-server', help="Run AWS instance with name if doesn't exist")
     sp.add_argument('server_name', help='Server name', metavar='myserver', default="")
     sp.add_argument('--ami', help='Base AMI.', metavar='ami-1234', default='')
     sp.add_argument('--image-name', help='Your image that was created by freezing server', metavar='myimage',
@@ -20,20 +20,20 @@ def register_commands(parser):
     cp.add_argument('--ssh-keys', help='SSH keys that were used during server creation', metavar='./id_rsa',
                     default='id_rsa', dest="keys")
 
-    ksp = parser.add_parser('kill-server', help="Terminate and delete AWS Instance")
+    ksp = parser.add_parser('kill-server', help="Terminates AWS Instance")
     ksp.add_argument('name', help='Server name', metavar='myserver', default="")
 
-    fp = parser.add_parser('freeze-server', help='Saves instance to image')
+    fp = parser.add_parser('create-image', help='Saves instance to image')
     fp.add_argument('server', help='Name for server that is running', metavar='myserver')
     fp.add_argument('--image-name', help='Image name. Default to server-name ', metavar='myimage', default='',
                     dest="image_name")
 
-    parser.add_parser('list-frozen', help='Lists images created by current user')
+    parser.add_parser('list-images', help='Lists images created by current user')
 
-    df = parser.add_parser('delete-frozen', help="Removes image")
+    df = parser.add_parser('delete-image', help="Removes image")
     df.add_argument('image_name', help='Image name', metavar='myimage', default="")
 
-    ssp = parser.add_parser('server-group', help='Runs scalable group of servers')
+    ssp = parser.add_parser('run-server-group', help='Runs scalable group of servers')
     ssp.add_argument('server_group_name', help='Name for server group', metavar='mygroup')
     ssp.add_argument('--image-name', help='Name for image to run in group', metavar='myimage', dest="image_name", required=True)
     ssp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa.pub',
@@ -48,7 +48,7 @@ def register_commands(parser):
 
 
 def exec_command(argv, args):
-    if "server" in argv:
+    if "run-server" in argv:
         server(args.server_name, args.ami, args.keys)
         return True
     if "connect-to-server" in argv:
@@ -57,7 +57,7 @@ def exec_command(argv, args):
     elif "kill-server" in argv:
         kill_server(args.name)
         return True
-    elif "freeze-server" in argv:
+    elif "create-image" in argv:
         img = args.image_name if args.image_name != "" else args.server_group
         freeze(args.server, img)
         return True
@@ -67,7 +67,7 @@ def exec_command(argv, args):
     elif "delete-frozen" in argv:
         delete_image(args.image_name)
         return True
-    elif "server-group" in argv:
+    elif "run-server-group" in argv:
         img = args.image_name if args.image_name != "" else args.server_group
         server_group(args.server_group_name, img, args.keys, args.min_size, args.max_size)
         return True

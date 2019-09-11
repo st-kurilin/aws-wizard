@@ -8,20 +8,20 @@ from .aws import s3
 
 
 def register_commands(parser):
-    swp = parser.add_parser('static_website', help='Publish static website')
+    swp = parser.add_parser('run-static-website', help='Publish static website')
     swp.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
     swp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content', default='./')
 
-    usp = parser.add_parser('update_static', help='Update static content. Works faster than static_website command')
+    usp = parser.add_parser('update-static-website', help='Update static content. Works faster than static_website command')
     usp.add_argument('domain', help='Your domain', metavar='yourdomain.com', default="")
     usp.add_argument('--directory', '-d', help='Local directory to publish', metavar='./content', default='./')
 
 
 def exec_command(argv, args):
-    if "static_website" in argv:
+    if "run-static-website" in argv:
         publish_static(args.domain, args.directory)
         return True
-    elif "update_static" in argv:
+    elif "update-static-website" in argv:
         update_static(args.domain, args.directory)
         return True
     return False

@@ -25,8 +25,9 @@ Amazaon made easy [aws-wizard.com](https://aws-wizard.com)
 ####Done
 - server run
 - images support
-####Todo
 - scaling support via server-groups
+- connect to server in group
+####Todo
 - check that individual servers are not accessible via web (but individual servers are)
 - name launch_template after image, not server-group 
 - delete louch template on image delete ???
