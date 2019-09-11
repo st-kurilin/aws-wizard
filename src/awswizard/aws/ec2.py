@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import time
@@ -18,7 +19,7 @@ def get_keys_name(specified):
     available = _get_aws_pairs()
     if specified in available:
         logging.debug(f"Using SSH Key {specified} from AWS1")
-        return input
+        return specified
     name = ''.join(os.path.basename(specified).split())  # filename without spaces
     if name in available:
         logging.debug(f"Using SSH Key {name} from AWS2")
@@ -33,19 +34,22 @@ def get_keys_name(specified):
     return None
 
 
-def run_instance(ami, tag, keys):
-    def is_instance_ready():
-        instance = find_instance_by_tag(tag)
-        if instance['state'] != 'running':
-            logging.debug(f"Instance {instance['id']} state is {instance['state']}. Expected: running.")
-            return False
-        else:
-            status = _get_instance_status(instance['id'])
-            if status != "ok":
-                logging.debug(f"Instance {instance['id']} status is {status}. Expecting ok.")
+def _is_instances_ready(tag):
+    def res():
+        for instance in find_instances_by_tag(tag):
+            if instance['state'] != 'running':
+                logging.debug(f"Instance {instance['id']} state is {instance['state']}. Expected: running.")
                 return False
-            return True
+            else:
+                status = _get_instance_status(instance['id'])
+                if status != "ok":
+                    logging.debug(f"Instance {instance['id']} status is {status}. Expecting ok.")
+                    return False
+        logging.debug(f"Instances {tag} ready.")
+        return True
+    return res
 
+def run_instance(tag, ami, keys):
     ins_id = aws(f"aws ec2 run-instances"
                  f" --image-id {ami}"
                  f" --instance-type t2.nano --key-name {keys} --query 'Instances[0].InstanceId'")
@@ -54,29 +58,27 @@ def run_instance(ami, tag, keys):
     group = _obtain_security_group("awswizard-public", [22, 80])
     aws(f"aws ec2 modify-instance-attribute --instance-id {ins_id} --groups {group}")
 
-    return [ins_id, find_instance_by_tag(tag)['ip'], is_instance_ready]
+    return [ins_id, find_instance_by_tag(tag)['ip'], lambda: _is_instances_ready(tag)]
 
 
-def terminate_instance(tag):
-    instance = find_instance_by_tag(tag)
-    if instance is None:
+def terminate_instances(tag):
+    all = find_instances_by_tag(tag)
+    if len(all) == 0:
         return [None, lambda: True]
     else:
-        ins_id = instance['id']
-        aws(f"aws ec2 terminate-instances --instance-ids {ins_id}")
-        return [ins_id, lambda: find_instance_by_tag(tag) is None]
+        ids = []
+        for ins in all:
+            ids.append(ins['id'])
+            aws(f"aws ec2 terminate-instances --instance-ids {ins['id']}")
+        return [ids, lambda: len(find_instances_by_tag(tag)) == 0]
 
 
-def find_instance_by_tag(tag):
+def find_instances_by_tag(tag):
     res = aws(f"aws ec2 describe-instances"
               f" --filter Name=tag:{NAME_TAG},Values={tag} "
               f"--query 'Reservations[*].Instances[0].[InstanceId, PublicIpAddress, State.Name]'")
-    for l in res.splitlines():
-        [ins_id, ip, state] = l.split()
-        if state != "terminated":
-            logging.debug(f"Instance by tag {tag}: {ins_id} ({state})")
-            return {"id": ins_id, "ip": ip, "state": state}
-    return None
+    return [{"id": ins[0], "ip": ins[1], "state": ins[2]}
+            for ins in [l.split() for l in res.splitlines()] if ins[2] != "terminated"]
 
 
 def _get_instance_status(ins_id):
@@ -101,3 +103,78 @@ def _obtain_security_group(name, open_ports):
             aws(f"aws ec2 authorize-security-group-ingress "
                 f"--group-id {group} --protocol tcp --port {p} --cidr 0.0.0.0/0")
         return group
+
+
+def create_launch_template(name, ami, keys):
+    try:
+        aws(f"aws ec2 delete-launch-template --launch-template-name {name}")
+    except:
+        pass # template doesn't exist
+
+    sec_group = _obtain_security_group("awswizard-public", [22, 80])
+    logging.debug(f"Security group to be used for launch template: {sec_group}")
+    data = {
+        "SecurityGroupIds": [sec_group],
+        "ImageId": ami,
+        "InstanceType": "t2.nano",
+        "KeyName": keys,
+        "TagSpecifications": [
+            {"ResourceType":"instance", "Tags": [{"Key": NAME_TAG, "Value": name}]}
+        ]
+    }
+    res = aws(f"aws ec2 create-launch-template --launch-template-name {name}"
+              f" --launch-template-data '{json.dumps(data)}'"
+              f" --query LaunchTemplate.LaunchTemplateId")
+    logging.debug(f"Launch Template {name} created({res})")
+    return res
+
+
+def create_target_group(name):
+    vpc = _get_vpc_id()
+    res = aws(f"aws elbv2 create-target-group --name {name} "
+              f" --protocol TCP --port 80 --vpc-id {vpc} --query TargetGroups[0].TargetGroupArn")
+    logging.debug(f"Target group {name} created({res})")
+    return res
+
+
+def create_auto_scaling_group(name, template_name, target_group, min, max):
+    vpc = _get_vpc_id()
+    subnets = aws(f"aws ec2 describe-subnets "
+                  f"--filters 'Name=vpc-id,Values={vpc}' --query 'Subnets[*].SubnetId'").split()
+    logging.debug(f"Subnets in VPC {vpc}: {subnets}")
+    res = aws(f"aws autoscaling create-auto-scaling-group --auto-scaling-group-name {name} "
+              f" --launch-template LaunchTemplateName={template_name} "
+              f" --min-size {min} --max-size {max} "
+              f" --target-group-arns {target_group} --vpc-zone-identifier {','.join(subnets)}")
+    logging.debug(f"Auto scaling group {name} created({res})")
+    return _is_instances_ready(name)
+
+
+def delete_auto_scaling_group(name):
+    try:
+        return aws(f"aws autoscaling delete-auto-scaling-group --force-delete  --auto-scaling-group-name {name}");
+    except:
+        pass #doesnt exist?
+
+
+def create_load_balancer(name, target_group):
+    vpc = _get_vpc_id()
+    subnets = aws(f"aws ec2 describe-subnets "
+                  f" --filters 'Name=vpc-id,Values={vpc}' --query 'Subnets[*].SubnetId'").split()
+    logging.debug(f"Subnets in VPC {vpc}: {subnets}")
+    lb = aws(f"aws elbv2 create-load-balancer --name {name} "
+             f" --type network --subnets {' '.join(subnets)} --query LoadBalancers[0].LoadBalancerArn")
+    logging.debug(f"Load balancer created {lb}")
+    listener = aws(f"aws elbv2 create-listener --load-balancer-arn {lb} "
+                   f" --protocol TCP --port 80  --default-actions Type=forward,TargetGroupArn={target_group}")
+    logging.debug(f"Listener to connect load balancer {lb} with target group {target_group} created: {listener}")
+    dns = aws(f"aws elbv2 describe-load-balancers --load-balancer-arns {lb} --query LoadBalancers[0].DNSName")
+    return dns
+
+
+def delete_load_balancer(name):
+    return aws(f"aws elb delete-load-balancer --load-balancer-name {name}")
+
+
+def _get_vpc_id():
+    return aws("aws ec2 describe-vpcs --filters 'Name=isDefault, Values=true' --query=Vpcs[0].VpcId")

@@ -3,7 +3,7 @@ AWS Wizard
 Amazaon made easy [aws-wizard.com](https://aws-wizard.com) 
 
 
-
+###STATIC
 ####Done
 - domain bucket creation
 - cert request
@@ -20,6 +20,21 @@ Amazaon made easy [aws-wizard.com](https://aws-wizard.com)
 - provide feedback on records set propagation status (route53.change-resource-record-sets.output ChangeInfo.Status?)
 - multiregional setup support
 - handle domains purchased on amazon: add ns records via script?
+
+###EC2
+####Done
+- server run
+- images support
+####Todo
+- scaling support via server-groups
+- check that individual servers are not accessible via web (but individual servers are)
+- name launch_template after image, not server-group 
+- delete louch template on image delete ???
+- routing for servers/server-groups
+- list running servers
+- pause/resume server
+- multiregion support
+- instance type config support
 
 
 ####Dev Notes
