@@ -3,6 +3,7 @@ import Feature from "../components/Feature";
 import Section from "../components/Section";
 import ParallaxImg from "../components/ParallaxImg";
 import {StaticWebsiteLink} from "./static-website";
+import {Ec2BackendLink} from "./ec2-backend";
 import Layout from "./Layout";
 
 
@@ -10,7 +11,7 @@ export default () => {
     return (
         <Layout>
             <Hero header="AWS Wizard" subheader="Amazon made simple.">
-                <StaticWebsiteButton />
+                <MainButton links={[StaticWebsiteLink, Ec2BackendLink]}/>
             </Hero>
             <div>
                 <Section>
@@ -62,7 +63,7 @@ export default () => {
                         Global distribution with CloudFront.
                         Configuring all these technologies used to be a hustle. Not anymore.
                         Recommended approach if you don't need any backend.
-                        <StaticWebsiteButton/>
+                        <MainButton links={[StaticWebsiteLink]}/>
                     </Feature>
                     <Feature title="Lambda Backend" icon="build">
                         Continuous scaling with cutting edge backend solution from Amazon.
@@ -70,14 +71,14 @@ export default () => {
                         All major languages are supported including Python, Node.js, Java and Go.
                         However, there are some limitations to frameworks usage.
                         The recommended approach for new projects that needs a backend.
-                        <ServerlessButton/>
+                        <ComingSoonButton/>
                     </Feature>
                     <Feature title="EC2 Backend" icon="developer_board">
                         EC2 is bread and butter for Amazon. The ultimate solution with virtual machines.
                         Now you can run your solution in auto-scalable infrastructure with a single command.
                         No limitation on the technology used. All programming languages and frameworks supported.
                         Recommended approach if you are migrating the existing solution to the cloud.
-                        <ServerButton/>
+                        <MainButton links={[Ec2BackendLink]}/>
                     </Feature>
                 </Section>
                 <ParallaxImg
@@ -89,13 +90,19 @@ export default () => {
     );
 }
 
-const StaticWebsiteButton = props => <div className="row center">
-    <br/>
-    <StaticWebsiteLink className="btn-large waves-effect waves-light teal lighten-1"/>
-    <br/>
-</div>;
+const MainButton = props => {
+    const ch = props.links instanceof Array ? props.links : [props.links];
+    const links = ch.map((L, i) => <L key={i}
+                                      className="btn-large waves-effect waves-light teal lighten-1"
+                                      style={{marginLeft: 8, marginRight: 8}}/>);
+    return (<div className="row center">
+        <br/>
+        {links}
+        <br/>
+    </div>)
+};
 
-const ServerlessButton = props => (
+const ComingSoonButton = props => (
     <div className="row center">
         <br/>
         <span
@@ -105,5 +112,3 @@ const ServerlessButton = props => (
         <br/>
     </div>
 );
-
-const ServerButton = ServerlessButton;

@@ -1,5 +1,6 @@
 import {AwsAccountLink} from "../pages/aws-account";
 import {StaticWebsiteLink} from "../pages/static-website";
+import {Ec2BackendLink} from "../pages/ec2-backend";
 
 export default props => <footer className="page-footer teal">
     <div className="container">
@@ -19,7 +20,8 @@ export default props => <footer className="page-footer teal">
                 <ul>
                     <li><AwsAccountLink className="white-text"/></li>
                     <li><StaticWebsiteLink className="white-text"/></li>
-                    <li><a className="white-text" href="https://github.com/st-kurilin/aws-wizard" target="_blank">Source Code</a></li>
+                    <li><Ec2BackendLink className="white-text"/></li>
+                    <li><a className="white-text" href="https://github.com/st-kurilin/aws-wizard" target="_blank">Source Code @ Github</a></li>
                 </ul>
             </div>
             <div className="col l3 s12">

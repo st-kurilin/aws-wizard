@@ -113,8 +113,9 @@ export default props => (
 
 
 export const StaticWebsiteLink = props => (
-    <Link href='/static-website'>
+    <Link href='/static-website' >
         <a href="/static-website"
+           style={props.style}
            className={props.className}>
             Build Static Website
         </a>
