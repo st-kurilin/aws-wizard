@@ -58,7 +58,7 @@ def run_instance(tag, ami, keys):
     group = _obtain_security_group("awswizard-public", [22, 80])
     aws(f"aws ec2 modify-instance-attribute --instance-id {ins_id} --groups {group}")
 
-    return [ins_id, find_instance_by_tag(tag)['ip'], lambda: _is_instances_ready(tag)]
+    return [ins_id, find_instances_by_tag(tag)[0]['ip'], lambda: _is_instances_ready(tag)]
 
 
 def terminate_instances(tag):
@@ -79,6 +79,12 @@ def find_instances_by_tag(tag):
               f"--query 'Reservations[*].Instances[0].[InstanceId, PublicIpAddress, State.Name]'")
     return [{"id": ins[0], "ip": ins[1], "state": ins[2]}
             for ins in [l.split() for l in res.splitlines()] if ins[2] != "terminated"]
+
+def find_server_names():
+    res = aws(f"aws ec2 describe-instances"
+              f" --filter Name=tag-key,Values={NAME_TAG} "
+              f"--query 'Reservations[*].Instances[0].[InstanceId, PublicIpAddress, State.Name, Tags[?Key==`{NAME_TAG}`]|[0].Value]'")
+    return [ins[3] for ins in [l.split() for l in res.splitlines()] if ins[2] != "terminated"]
 
 
 def _get_instance_status(ins_id):

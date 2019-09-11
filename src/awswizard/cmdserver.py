@@ -15,6 +15,9 @@ def register_commands(parser):
     sp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa.pub',
                     default='id_rsa', dest="keys")
 
+    ls = parser.add_parser('list-servers', help="Lists all running servers")
+    ls.add_argument('--name', help='Server name', metavar='myserver', default="")
+
     cp = parser.add_parser('connect-to-server', help="SSH to server")
     cp.add_argument('server_name', help='Server name', metavar='myserver', default="")
     cp.add_argument('--ssh-keys', help='SSH keys that were used during server creation', metavar='./id_rsa',
@@ -35,7 +38,8 @@ def register_commands(parser):
 
     ssp = parser.add_parser('run-server-group', help='Runs scalable group of servers')
     ssp.add_argument('server_group_name', help='Name for server group', metavar='mygroup')
-    ssp.add_argument('--image-name', help='Name for image to run in group', metavar='myimage', dest="image_name", required=True)
+    ssp.add_argument('--image-name', help='Name for image to run in group', metavar='myimage', dest="image_name",
+                     required=True)
     ssp.add_argument('--ssh-keys', help='SSH keys to be used to access instance', metavar='./id_rsa.pub',
                      default='id_rsa', dest="keys")
     ssp.add_argument('--min-size', help='Minimum number of instances. Default to 2',
@@ -50,6 +54,9 @@ def register_commands(parser):
 def exec_command(argv, args):
     if "run-server" in argv:
         server(args.server_name, args.ami, args.keys)
+        return True
+    if "list-servers" in argv:
+        list_servers(args.name)
         return True
     if "connect-to-server" in argv:
         connect_to_server(args.server_name, args.keys)
@@ -79,7 +86,7 @@ def exec_command(argv, args):
 
 
 def server(name, image_ami, keys):
-    exists = ec2.find_instance_by_tag(name)
+    exists = ec2.find_instances_by_tag(name)
     if len(exists) != 0:
         print (f"Instance with name {name} already exists: {instance['id']}")
         print (instance['ip'])
@@ -94,6 +101,24 @@ def server(name, image_ami, keys):
             print ("Initializing...")
         print (f"Server {name} is ready. IP:")
         print (ip)
+
+
+def list_servers(name):
+    if name == "":
+        names = ec2.find_server_names()
+        if len(names) == 0:
+            print (f"No servers found")
+        else:
+            names.sort()
+            print ("\n".join(names))
+    else:
+        instances = ec2.find_instances_by_tag(name)
+        instances.sort(key=lambda e: e['ip'])
+        if len(instances) == 0:
+            print (f"No servers found")
+        else:
+            for num, ins in enumerate(instances, start=1):
+                print (f"({num}): {ins['ip']} ({ins['id']})")
 
 
 def connect_to_server(name, keys):
