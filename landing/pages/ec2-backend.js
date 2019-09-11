@@ -65,9 +65,9 @@ export default props => (
                          <p><b>Kill server</b> since we don't need server anymore <Wcmd>kill-server boomer</Wcmd>
                          </p>
                      </span>,
-                    <span key="run-group">
+                    <span key="run-cluster">
                          <p>
-                             <b>Run Group</b> of servers with <Wcmd>run-server-group boomboom --image-name boomer --max-size 8</Wcmd>
+                             <b>Run Cluster</b> with <Wcmd>run-cluster boomboom --image-name boomer --max-size 8</Wcmd>
                         </p>
                      </span>,
                     <span key="enjoy">
@@ -77,7 +77,7 @@ export default props => (
                     </span>,
                     <span key="clenup">
                         <p><b>Clean up</b> resources to avoid unnecessary charges. <br/>
-                            Delete servers group <Wcmd>kill-server-group boomboom</Wcmd>.<br/>
+                            Delete cluster <Wcmd>kill-cluster boomboom</Wcmd>.<br/>
                             Deleting image <Wcmd>delete-image boomer</Wcmd>.
                         </p>
                      </span>
