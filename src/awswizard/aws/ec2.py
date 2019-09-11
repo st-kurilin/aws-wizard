@@ -47,7 +47,9 @@ def _is_instances_ready(tag):
                     return False
         logging.debug(f"Instances {tag} ready.")
         return True
+
     return res
+
 
 def run_instance(tag, ami, keys):
     ins_id = aws(f"aws ec2 run-instances"
@@ -80,11 +82,13 @@ def find_instances_by_tag(tag):
     return [{"id": ins[0], "ip": ins[1], "state": ins[2]}
             for ins in [l.split() for l in res.splitlines()] if ins[2] != "terminated"]
 
+
 def find_server_names():
     res = aws(f"aws ec2 describe-instances"
               f" --filter Name=tag-key,Values={NAME_TAG} "
               f"--query 'Reservations[*].Instances[0].[InstanceId, PublicIpAddress, State.Name, Tags[?Key==`{NAME_TAG}`]|[0].Value]'")
-    return [ins[3] for ins in [l.split() for l in res.splitlines()] if ins[2] != "terminated"]
+    names = [ins[3] for ins in [l.split() for l in res.splitlines()] if ins[2] != "terminated"]
+    return list(set(names))
 
 
 def _get_instance_status(ins_id):
@@ -115,7 +119,7 @@ def create_launch_template(name, ami, keys):
     try:
         aws(f"aws ec2 delete-launch-template --launch-template-name {name}")
     except:
-        pass # template doesn't exist
+        pass  # template doesn't exist
 
     sec_group = _obtain_security_group("awswizard-public", [22, 80])
     logging.debug(f"Security group to be used for launch template: {sec_group}")
@@ -125,7 +129,7 @@ def create_launch_template(name, ami, keys):
         "InstanceType": "t2.nano",
         "KeyName": keys,
         "TagSpecifications": [
-            {"ResourceType":"instance", "Tags": [{"Key": NAME_TAG, "Value": name}]}
+            {"ResourceType": "instance", "Tags": [{"Key": NAME_TAG, "Value": name}]}
         ]
     }
     res = aws(f"aws ec2 create-launch-template --launch-template-name {name}"
@@ -160,7 +164,7 @@ def delete_auto_scaling_group(name):
     try:
         return aws(f"aws autoscaling delete-auto-scaling-group --force-delete  --auto-scaling-group-name {name}");
     except:
-        pass #doesnt exist?
+        pass  # doesnt exist?
 
 
 def create_load_balancer(name, target_group):

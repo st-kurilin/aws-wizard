@@ -20,10 +20,14 @@ def register_commands(parser):
 
     cp = parser.add_parser('connect-to-server', help="SSH to server")
     cp.add_argument('server_name', help='Server name', metavar='myserver', default="")
+    cp.add_argument('--index', help='If there are more than one server with such name. Sorted by IP. 1-based indexes',
+                    metavar='1', default="")
+    cp.add_argument('--ip', help='If there are more than one server with such name. ', metavar='10.10.10.10',
+                    default="")
     cp.add_argument('--ssh-keys', help='SSH keys that were used during server creation', metavar='./id_rsa',
                     default='id_rsa', dest="keys")
 
-    ksp = parser.add_parser('kill-server', help="Terminates AWS Instance")
+    ksp = parser.add_parser('kill-servers', help="Terminates AWS Instance")
     ksp.add_argument('name', help='Server name', metavar='myserver', default="")
 
     fp = parser.add_parser('create-image', help='Saves instance to image')
@@ -59,19 +63,19 @@ def exec_command(argv, args):
         list_servers(args.name)
         return True
     if "connect-to-server" in argv:
-        connect_to_server(args.server_name, args.keys)
+        connect_to_server(args.server_name, args.keys, args.ip, args.index)
         return True
-    elif "kill-server" in argv:
+    elif "kill-servers" in argv:
         kill_server(args.name)
         return True
     elif "create-image" in argv:
-        img = args.image_name if args.image_name != "" else args.server_group
-        freeze(args.server, img)
+        img = args.image_name if args.image_name != "" else args.server
+        create_image(args.server, img)
         return True
-    elif "list-frozen" in argv:
-        list_frozen()
+    elif "list-images" in argv:
+        list_images()
         return True
-    elif "delete-frozen" in argv:
+    elif "delete-image" in argv:
         delete_image(args.image_name)
         return True
     elif "run-server-group" in argv:
@@ -121,16 +125,18 @@ def list_servers(name):
                 print (f"({num}): {ins['ip']} ({ins['id']})")
 
 
-def connect_to_server(name, keys):
-    ins = ec2.find_instances_by_tag(name)
-    if len(ins) == 0:
-        print (f"Cannot find server with name {name}")
-    elif len(ins) > 1:
-        print (f"More than one server with name {name} exists")
+def connect_to_server(name, keys, ip_filter, index_filter):
+    servers = [ins for num, ins in enumerate(ec2.find_instances_by_tag(name), start=1)
+               if ip_filter == "" or ip_filter == ins['ip']
+               if index_filter == "" or index_filter == str(num)]
+    if len(servers) == 0:
+        print (f"Cannot find server matching criteria")
+    elif len(servers) > 1:
+        print (f"More than one server matching criteria exists")
     else:
-        instance = ins[0]
-        print (f"Cannecting to server {name} ({instance['id']}/{instance['ip']})")
-        ssh.login_to_server("ubuntu", instance['ip'], keys)
+        ins = servers[0]
+        print (f"Connecting to server {name} ({ins['id']}/{ins['ip']})")
+        ssh.login_to_server("ubuntu", ins['ip'], keys)
 
 
 def kill_server(name):
@@ -145,12 +151,12 @@ def kill_server(name):
         print (f"Server {name} killed.")
 
 
-def freeze(server_name, image_name):
-    ins = ec2.find_instances_by_tag(name)
+def create_image(server_name, image_name):
+    ins = ec2.find_instances_by_tag(server_name)
     if len(ins) == 0:
-        print (f"Cannot find server with name {name}")
+        print (f"Cannot find server with name {server_name}")
     elif len(ins) > 1:
-        print (f"More than one server with name {name} exists")
+        print (f"More than one server with name {server_name} exists")
     else:
         instance = ins[0]
         print (f"Creating image {image_name} from server {server_name}...")
@@ -159,7 +165,7 @@ def freeze(server_name, image_name):
         print (image_id)
 
 
-def list_frozen():
+def list_images():
     imgs = images.get_my_images()
     if len(imgs) == 0:
         print("You have no saved images.")
@@ -184,7 +190,7 @@ def delete_image(image_name):
 def server_group(group_name, image_name, keys, min_size, max_size):
     ami = image_name if image_name.startswith("ami") else images.find_own_image_by_name(image_name)
     if ami is None:
-        print ("Cannot find image for with name {image_name}")
+        print (f"Cannot find image for with name {image_name}")
     else:
         template = ec2.create_launch_template(group_name, ami, _get_aws_keys(keys))
         target_group = ec2.create_target_group(group_name)
