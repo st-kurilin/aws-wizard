@@ -12,7 +12,7 @@ class MyDocument extends Document {
                 <link rel="stylesheet"
                       href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"/>
                 <link href="static/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-                <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+                <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
             </Head>
 
             <body>
@@ -20,6 +20,8 @@ class MyDocument extends Document {
             <NextScript />
             <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-FBNNR79QK0"></script>
+            <script href="/static/ga.js"/>
             </body>
             </Html>
         )
